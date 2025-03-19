@@ -7,9 +7,9 @@ a consolidated framework to choose the solver, compile, execute and visualize si
 The project is a consortium between (IISc Bangalore, IIT Hyderabad, IIT Bombay, IIT Madras, Savitribai Phule Pune University, C-DAC Pune).
 Following is a brief description of the different software modules and details on how to independently execute them.  
 
- [Workshop-cum-demo](https://www.youtube.com/channel/UCnmLKb-kqQCNXWa0Oz6Ua_g)  
+ [Workshop-cum-demo](https://github.com/ICME-India/MicroSim/releases)  
  
- [Follow us on LinkedIn](https://www.linkedin.com/company/microstructure-simulator/)
+ [Follow us on LinkedIn](https://github.com/ICME-India/MicroSim/releases)
  
 ## Grand-Potential Model(SERIAL)
 This is multiphase multi-component phase-field solver based on the 
@@ -64,8 +64,8 @@ a) Sumeet Rajesh Khanna
  * C code for precipitate evolution. 
  * It solves Allen-Cahn and Cahn–Hilliard equations using FFTW3. 
  * 
- * Compile the code using "make". Compilation creates "FFT_2D_ppt.out" file. 
- * Execute "./microsim_ch_fft Input.in Filling.in output" 
+ * Compile the code using "make". Compilation creates "https://github.com/ICME-India/MicroSim/releases" file. 
+ * Execute "./microsim_ch_fft https://github.com/ICME-India/MicroSim/releases https://github.com/ICME-India/MicroSim/releases output" 
  * 
  * Authors: Dasari Mohan and M P Gururajan
  * 
@@ -87,7 +87,7 @@ $ make
 To compile without cuFFTMp or HDF5 support,
 $ make ENABLE_CUFFTMP=0 ENABLE_HDF5=0
 
-For usage on the PARAM supercomputers, one can use the SLURM script (ParamJobScript.sh) and Makefile (Makefile_Param) that are included.
+For usage on the PARAM supercomputers, one can use the SLURM script (https://github.com/ICME-India/MicroSim/releases) and Makefile (Makefile_Param) that are included.
 Since the packages may differ from platform to platform, some modifications to the above may be necessary.
 
 To run the solver, use:
@@ -105,15 +105,15 @@ The following contributors are acknowledged
 ## KKS GPU OPENCL Model
  * OpenCL code for solidification microstructure evolution 
  * 
- * Compile the code using "make". Compilation creates "kim_soldfn.out" file. 
- * GEdata_writer.py is used for generation of Gibbs energy and its derivatives
+ * Compile the code using "make". Compilation creates "https://github.com/ICME-India/MicroSim/releases" file. 
+ * https://github.com/ICME-India/MicroSim/releases is used for generation of Gibbs energy and its derivatives
  * To generate Gibbs energies and execute the program
- * run "./kimsldfn.sh  Input.in Filling.in Output"
+ * run "https://github.com/ICME-India/MicroSim/releases  https://github.com/ICME-India/MicroSim/releases https://github.com/ICME-India/MicroSim/releases Output"
  * It is always safe to run above command for execution of the code.
  *
  * If Gibbs energies are generated already then generating 
  * Gibbs energies can be skipped and directly execute following command.
- * Execute "./microsim_kks_opencl Input.in Filling.in Output" 
+ * Execute "./microsim_kks_opencl https://github.com/ICME-India/MicroSim/releases https://github.com/ICME-India/MicroSim/releases Output" 
  * 
  * Authors: Dasari Mohan and G Phanikumar
  * Acknowledgement to P. Gerald Tennyson for contributions towards code development at IITM
@@ -201,7 +201,7 @@ Python GUI application for generating Infile and Filling files.
 
 * You can use a package manager like Miniconda or Anaconda to avoid issues with system python. Miniconda is enough for this specific purpose.
 
-* Install Miniconda package manager from https://repo.anaconda.com/miniconda/Miniconda3-py310_23.1.0-1-Linux-x86_64.sh
+* Install Miniconda package manager from https://github.com/ICME-India/MicroSim/releases
 
 * Now create a virtual environment with python 3.9 (version previous to this are also compatible with the packages required) and pip:
 
@@ -217,7 +217,7 @@ Python GUI application for generating Infile and Filling files.
 
 * Launch MicroSim:
 
-> python MicroSim.py
+> python https://github.com/ICME-India/MicroSim/releases
 
 ### Do you want to modify the GUI as a developer?
 
@@ -233,6 +233,6 @@ Python GUI application for generating Infile and Filling files.
 
 > designer
 
-* Open resources/mainscreen.ui
+* Open https://github.com/ICME-India/MicroSim/releases
      
 Developed by- Ajay Sagar and Tanmay Dutta
