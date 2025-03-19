@@ -116,7 +116,7 @@ microsim-init(){
     local MICROSIM_SCRIPT_DIR="${MICROSIM_HOME}/post" ;
     if [[ ! -d "$MICROSIM_SCRIPT_DIR" ]]; then
         echo "- **ERROR** path $MICROSIM_SCRIPT_DIR does not exist." ;
-        return 1 ;
+        #return 1 ;
     fi
 
     for script in "$MICROSIM_SCRIPT_DIR"/*.py; do
@@ -135,6 +135,12 @@ EOF
     done
 
     find "$MICROSIM_HOME" -type f -name "microsim*" -executable -exec file {} + | grep -E 'ELF' | awk -F: '{print $1}' | while read -r executable; do
+        filename=$(basename "$executable") ;
+        ln -sf "$executable" "$MICROSIM_BIN_DIR/$filename" ;
+        microsim-print-path $filename $executable ;
+    done
+
+    find "$MICROSIM_HOME" -type f -name "write*" -executable -exec file {} + | grep -E 'ELF' | awk -F: '{print $1}' | while read -r executable; do
         filename=$(basename "$executable") ;
         ln -sf "$executable" "$MICROSIM_BIN_DIR/$filename" ;
         microsim-print-path $filename $executable ;
