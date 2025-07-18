@@ -1,33 +1,35 @@
 # Build KKS_FD_CUDA_MPI
 SHELL = /bin/sh
-NPROCS = 2
+NPROCS = 1
 
-HPCSDK_VERSION ?= 23.1
+HPCSDK_VERSION ?= 23.3
 
 NVHPC_ROOT       ?= /opt/nvidia
 NVHPC_HOME       ?= ${NVHPC_ROOT}/hpc_sdk/Linux_x86_64/${HPCSDK_VERSION}
 NVHPC_CUDA_HOME  ?= ${NVHPC_HOME}/cuda
-MPI_HOME         ?= ${NVHPC_HOME}/comm_libs/mpi
-HDF5_HOME        ?= /usr/local
+MPI_HOME         ?= ${NVHPC_HOME}/comm_libs/openmpi4/openmpi-4.0.5
+HDF5_HOME        ?= /opt/spack/opt/spack/linux-ubuntu22.04-skylake_avx512/gcc-11.4.0/hdf5-1.14.4-3-bqhpg7nw6szqeigw5dmlvhhmrspezu7h
 CUFFT_LIB        ?= ${NVHPC_HOME}/math_libs/lib64
 CUFFT_INC        ?= ${NVHPC_HOME}/math_libs/include/cufftmp
 NVSHMEM_LIB      ?= ${NVHPC_HOME}/math_libs/12.0/lib64/compat/nvshmem_2.6.0-1
-GSL_HOME         ?= /usr/local
+GSL_HOME         ?= /opt/spack/opt/spack/linux-ubuntu22.04-skylake_avx512/gcc-11.4.0/gsl-2.7.1-wwnnm54dtynjeyuzdt24v7dfbgy4kjhv
 
 # Arguments
-INPUT = Input.in
+INPUT = Input_austenite_ferrite.in
 FILLING = Filling.in
 OUTPUT = Output
 ENABLE_HDF5 = 1
-ENABLE_CUFFTMP = 1
+ENABLE_CUFFTMP=1
 
 # Compilers
 MPICC = $(PREP) ${MPI_HOME}/bin/mpicxx
 MPILD = $(PREP) ${MPI_HOME}/bin/mpicxx
 ifeq ($(ENABLE_HDF5), 1)
-H5CC  = $(PREP) ${HDF5_HOME}/bin/h5c++
+H5CC  = $(PREP) ${MPI_HOME}/bin/mpicxx
+HDF5FLAGS = -I${HDF5_HOME}/include -L${HDF5_HOME}/lib -lhdf5
 else
 H5CC  = $(PREP) ${MPI_HOME}/bin/mpicxx
+HDF5FLAGS = 
 endif
 NVCC = $(PREP) ${NVHPC_CUDA_HOME}/bin/nvcc
 
@@ -72,7 +74,7 @@ $(TDBS)/obj/Thermo.o: $(TDBS)/Thermo.cu $(TDBS)/Thermo.cuh Makefile
 	$(NVCC) -dc $(TDBS)/Thermo.cu -o $(TDBS)/obj/Thermo.o $(INCFLAGS) $(NVCCFLAGS) $(CUDALDFLAGS) $(CUDACFLAGS)
 
 $(SOLVERLOOP)/obj/fileWriter.o: $(SOLVERLOOP)/fileWriter.c $(SOLVERLOOP)/fileWriter.h $(FUNCTIONS)/structures.h $(FUNCTIONS)/defines.h Makefile
-	$(H5CC) $(MPICFLAGS) $(CFLAGS) $(CUDACFLAGS) $(INCFLAGS) -DENABLE_HDF5=$(ENABLE_HDF5) -c $(SOLVERLOOP)/fileWriter.c -o $(SOLVERLOOP)/obj/fileWriter.o
+	$(H5CC) $(MPICFLAGS) $(CFLAGS) $(CUDACFLAGS) $(INCFLAGS) $(HDF5FLAGS) -DENABLE_HDF5=$(ENABLE_HDF5) -c $(SOLVERLOOP)/fileWriter.c -o $(SOLVERLOOP)/obj/fileWriter.o
 
 $(FUNCTIONS)/obj/utilityFunctions.o: $(FUNCTIONS)/utilityFunctions.c $(FUNCTIONS)/utilityFunctions.h $(TDBS)/Thermo.cu $(FUNCTIONS)/structures.h $(FUNCTIONS)/defines.h Makefile
 	$(MPICC) $(MPICFLAGS) $(CFLAGS) $(CUDACFLAGS) $(INCFLAGS) -c $(FUNCTIONS)/utilityFunctions.c -o $(FUNCTIONS)/obj/utilityFunctions.o
@@ -156,7 +158,7 @@ link: $(device_objects) $(FUNCTIONS)/defines.h
 	$(NVCC) $(GENCODE_FLAGS) -dlink ./MicroSim_KKS_FD_CUDA_MPI.o $(device_objects) -o $(SOLVERLOOP)/obj/deviceCode.o
 
 $(KKS_OUT): $(host_objects) link
-	$(H5CC) ./MicroSim_KKS_FD_CUDA_MPI.o $(SOLVERLOOP)/obj/*.o $(FUNCTIONS)/obj/*.o $(TDBS)/obj/Thermo.o $(CUDALDFLAGS) $(CUDACFLAGS) $(MPILDFLAGS) $(CFLAGS) $(GSLFLAGS)  -o $(KKS_OUT)
+	$(H5CC) ./MicroSim_KKS_FD_CUDA_MPI.o $(SOLVERLOOP)/obj/*.o $(FUNCTIONS)/obj/*.o $(TDBS)/obj/Thermo.o $(CUDALDFLAGS) $(CUDACFLAGS) $(MPILDFLAGS) $(CFLAGS) $(GSLFLAGS) $(HDF5FLAGS) -o $(KKS_OUT)
 	rm -rf MicroSim_KKS_FD_CUDA_MPI.o $(SOLVERLOOP)/obj/fileWriter.o $(SOLVERLOOP)/obj/computeElastic.o $(FUNCTIONS)/obj/error_checks.o
 thermo: $(INPUT)
 	python GEdata_writer.py $(INPUT)

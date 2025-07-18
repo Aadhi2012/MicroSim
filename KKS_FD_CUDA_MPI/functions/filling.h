@@ -23,6 +23,18 @@ void fillCylinder(double *phi, cylinder Cylinder,
                   domainInfo simDomain, subdomainInfo subdomain);
 
 /*
+ * Fill a cylinder without excluding matrix phase
+ */
+ void fillCylinderNEXLP(double *phi, cylinder Cylinder,
+    domainInfo simDomain, subdomainInfo subdomain);
+
+/*
+ * Fill a sphere without excluding matrix phase
+ */
+ void fillSphereNEXLP(double *phi, sphere Sphere,
+    domainInfo simDomain, subdomainInfo subdomain);
+
+/*
  * Fill a sphere
  */
 void fillSphere(double *phi, sphere Sphere,

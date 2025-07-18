@@ -30,7 +30,19 @@ void readFill(fillParameters *simFill, char *argv[], int rank)
         sscanf(tempbuff, "%100s = %100[^;];", tmpstr1, tmpstr2);
         if (tmpstr1[0] != '#')
         {
-            if ((strcmp(tmpstr1, "FILLCYLINDER") == 0) || (strcmp(tmpstr1, "FILLSPHERE") == 0) || (strcmp(tmpstr1, "FILLCUBE") == 0) || (strcmp(tmpstr1, "FILLCYLINDERRANDOM") == 0) || (strcmp(tmpstr1, "FILLSPHERERANDOM") == 0))
+            if (
+                (strcmp(tmpstr1, "FILLCYLINDER")            == 0) ||
+                (strcmp(tmpstr1, "FILLSPHERE")              == 0) ||
+                (strcmp(tmpstr1, "FILLCUBE")                == 0) ||
+                (strcmp(tmpstr1, "FILLCYLINDERRANDOM")      == 0) ||
+                (strcmp(tmpstr1, "FILLSPHERERANDOM")        == 0) ||
+                (strcmp(tmpstr1, "FILLCUBEPATTERN")         == 0) ||
+                (strcmp(tmpstr1, "FILLVORONOI2D")           == 0) ||
+                (strcmp(tmpstr1, "FILLCYLINDERRANDOMNEXLP") == 0) ||
+                (strcmp(tmpstr1, "FILLCYLINDERNEXLP")       == 0) ||
+                (strcmp(tmpstr1, "FILLSPHERENEXLP")         == 0) ||
+                (strcmp(tmpstr1, "FILLCUBERANDOM")          == 0)
+            )
             {
                 simFill->countFill++;
             }
@@ -57,6 +69,7 @@ void readFill(fillParameters *simFill, char *argv[], int rank)
     simFill->seed         = (long*)malloc(sizeof(long)*simFill->countFill);
     simFill->volFrac      = (double*)malloc(sizeof(double)*simFill->countFill);
     simFill->shieldDist   = (long*)malloc(sizeof(long)*simFill->countFill);
+    simFill->shiftFrac   = (long*)malloc(sizeof(long)*simFill->countFill);//Added for FILLCUBEPATTERN 
     simFill->radVar       = (double*)malloc(sizeof(double)*simFill->countFill);
 
     long j = 0;
@@ -262,7 +275,196 @@ void readFill(fillParameters *simFill, char *argv[], int rank)
                     free(tmp[i]);
                 free(tmp);
             }
+            //Added Functions
+            else if (strcmp(tmpstr1, "FILLCUBEPATTERN") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*7);
+                for (i = 0; i < 7; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
 
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                }
+
+                simFill->fillType[j]   = FILLCUBEPATTERN;
+                simFill->phase[j]      = atol(tmp[0]);
+                simFill->xS[j]       = atol(tmp[1]);
+                simFill->yS[j]       = atol(tmp[2]);
+                simFill->zS[j]       = atol(tmp[3]);
+                simFill->volFrac[j]    = atof(tmp[4]);
+                simFill->shieldDist[j] = atol(tmp[5]);
+                simFill->shiftFrac[j] = atof(tmp[6]);
+
+                j++;
+
+                if (!(rank))
+                    printf("Read Cube Pattern filling parameters\n");
+
+                for (i = 0; i < 7; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
+            /////////////////////////////////////////////////////////////
+            else if (strcmp(tmpstr1, "FILLVORONOI2D") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*6);
+                for (i = 0; i < 6; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
+
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                }
+
+                simFill->fillType[j]   = FILLVORONOI2D;
+                simFill->xS[j]      = atol(tmp[0]);
+                simFill->xE[j]     = atol(tmp[1]);
+                simFill->yS[j]      = atol(tmp[2]);
+                simFill->yE[j]     = atol(tmp[3]);
+                simFill->shieldDist[j] = atol(tmp[4]);//Placeholder variable to store NUMPOINTS 
+                simFill->volFrac[j]    = atof(tmp[5]);//Placeholder variable to store SIZE
+                j++;
+
+                if (!(rank))
+                    printf("Reading VORONOI 2D Parameters\n");
+                for (i = 0; i < 6; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
+            ////////////////////////////////////////////////////////////////////////////////////
+            else if (strcmp(tmpstr1, "FILLCYLINDERRANDOMNEXLP") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*5);
+                for (i = 0; i < 5; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
+
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                    printf("tmp[i]=%s\n",tmp[i]);
+                }
+
+                simFill->fillType[j]          = FILLCYLINDERRANDOMNEXLP;
+                simFill->phase[j]             = atol(tmp[0]);
+                simFill->radius[j]            = atol(tmp[1]);
+                simFill->volFrac[j]           = atof(tmp[2]);
+                simFill->shieldDist[j]        = atol(tmp[3]);
+                simFill->radVar[j]            = atof(tmp[4]);
+                j++;
+                printf("the input parameters read are -phase=%ld,radius=%ld,volfrac=%f,shield=%ld,spread=%f\n",simFill->phase[j],simFill->radius[j],simFill->volFrac[j],simFill->shieldDist[j],simFill->radVar[j]);
+                if (!(rank))
+                    printf("Filling cylinders at random without excluding matrix phase\n");
+                for (i = 0; i < 5; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
+
+            //////////////////////////////////////////////////////////////////////////////////
+            else if (strcmp(tmpstr1, "FILLCYLINDERNEXLP") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*6);
+                for (i = 0; i < 6; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
+
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                }
+
+                simFill->fillType[j] = FILLCYLINDERNEXLP;
+                simFill->phase[j]    = atol(tmp[0]);
+                simFill->xC[j]       = atol(tmp[1]);
+                simFill->yC[j]       = atol(tmp[2]);
+                simFill->zS[j]       = atol(tmp[3]);
+                simFill->zE[j]       = atol(tmp[4]);
+                simFill->radius[j]   = atol(tmp[5]);
+
+                if (!(rank))
+                    printf("Read cylinder parameters  without excluding last phase- (%ld, %ld, %ld, %ld, %ld, %ld)\n", simFill->phase[j], simFill->xC[j], simFill->yC[j], simFill->zS[j], simFill->zE[j], simFill->radius[j]);
+
+                j++;
+
+                for (i = 0; i < 6; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
+            ///////////////////////////////////////////////////////////////////
+            else if (strcmp(tmpstr1, "FILLSPHERENEXLP") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*5);
+                for (i = 0; i < 5; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
+
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                }
+
+                simFill->fillType[j] = FILLSPHERENEXLP;
+                simFill->phase[j]    = atol(tmp[0]);
+                simFill->xC[j]       = atol(tmp[1]);
+                simFill->yC[j]       = atol(tmp[2]);
+                simFill->zC[j]       = atol(tmp[3]);
+                simFill->radius[j]   = atol(tmp[4]);
+
+                j++;    
+
+                if (!(rank))
+                    printf("Read sphere parameters without excluding last phase\n");
+
+                for (i = 0; i < 5; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
+            //////////////////////////////////////////////////////////////////////////////////
+           else if (strcmp(tmpstr1, "FILLCUBERANDOM") == 0)
+            {
+                tmp = (char**)malloc(sizeof(char*)*7);
+                for (i = 0; i < 7; i++)
+                    tmp[i] = (char*)malloc(sizeof(char)*10);
+
+                for (i = 0, str1 = tmpstr2; ; i++, str1 = NULL)
+                {
+                    token = strtok_r(str1, "{,}", &saveptr1);
+                    if (token == NULL)
+                        break;
+                    strcpy(tmp[i],token);
+                }
+
+                simFill->fillType[j]   = FILLCUBERANDOM;
+                simFill->phase[j]      = atol(tmp[0]);
+                simFill->xS[j]       = atol(tmp[1]);
+                simFill->yS[j]       = atol(tmp[2]);
+                simFill->zS[j]       = atol(tmp[3]);
+                simFill->shiftFrac[j] = atof(tmp[4]);
+                simFill->volFrac[j]    = atof(tmp[5]);
+                simFill->shieldDist[j] = atol(tmp[6]);
+
+                j++;
+
+                if (!(rank))
+                    printf("Read random cube filling parameters\n");
+
+                for (i = 0; i < 7; i++)
+                    free(tmp[i]);
+                free(tmp);
+            }
             else
                 printf("Did not find valid input in %s\n", argv[2]);
         }

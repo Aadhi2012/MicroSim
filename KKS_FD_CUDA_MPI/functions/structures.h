@@ -245,7 +245,22 @@ typedef struct ellipse
     long phase;
 } ellipse;
 
-enum fill{FILLCYLINDER, FILLSPHERE, FILLCYLINDERRANDOM, FILLSPHERERANDOM, FILLCUBE, FILLELLIPSE};
+enum fill {
+    FILLCYLINDER,
+    FILLSPHERE,
+    FILLCYLINDERRANDOM,
+    FILLSPHERERANDOM,
+    FILLCUBE,
+    FILLELLIPSE,
+    FILLCUBEPATTERN,
+    FILLVORONOI2D,
+    FILLCYLINDERRANDOMNEXLP,
+    FILLCYLINDERNEXLP,
+    FILLSPHERENEXLP,
+    FILLCUBERANDOM
+    //FILLVORONOI3D,
+    //FILLSPHERERANDOMNEXLP
+};
 
 /*
  * Definition for a structure to hold all domain filling information
@@ -262,8 +277,8 @@ typedef struct fillParameters
     long *seed;
     double *volFrac;
     long *shieldDist;
+    long *shiftFrac;
     double *radVar;
-
     long countFill;
 } fillParameters;
 
